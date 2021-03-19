@@ -15,6 +15,34 @@ Device naming that is used in this document:
 | `/dev/sda` | Internal drive |
 | `/dev/sdb` | External drive |
 
+External drive partitioning:
+
+| Partition # | Content              |
+| ----------- | -------------------- |
+| 1           | EFI system partition |
+| 2           | Recovery data        |
+
+Internal drive partitioning:
+
+| Partition # | Content                             |
+| ----------- | ----------------------------------- |
+| 1           | Reserved                            |
+| 2           | Encrypted (LUKS) `/boot` filesystem |
+| 3           | Encrypted (LUKS) LVM                |
+
+Internal drive LVM logical volumes:
+
+*   root filesystem
+*   `/home` filesystem
+*   swap
+*   Extboot-ESP
+
+Extboot-ESP volume is not used when booting the OS. When OS is booted up this
+volume is mounted to `/boot` point instead of the external drive ESP. When EFI
+applications (shim or GRUB) are updated, they are first updated on Extboot-ESP
+volume. When the external drive is connected, its ESP is synced with the
+Extboot-ESP volume.
+
 Installation instructions:
 
 1.  Boot in UEFI mode from installation media and choose "Try Ubuntu".
