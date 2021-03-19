@@ -4,6 +4,10 @@ System Installation
 The following instructions describe an installation procedure of Ubuntu 20.04
 LTS with full disk encryption enhanced by extboot.
 
+This manual is based on [Full_Disk_Encryption_Howto_2019][FDE] guide.
+
+[FDE]: https://help.ubuntu.com/community/Full_Disk_Encryption_Howto_2019
+
 Device naming that is used in this document:
 
 | Device     | Drive          |
