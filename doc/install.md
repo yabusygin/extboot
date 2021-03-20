@@ -303,9 +303,9 @@ Installation instructions:
     ```
 
 25. Create file `/etc/systemd/system/extboot-sync.service` with contents from
-    `${project_root}/systemd-service/extboot-sync.service`.
+    `${project_root}/config/systemd-service/extboot-sync.service`.
 
 26. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
-    `${project_root}/udev/99-extboot.rules`.
+    `${project_root}/config/udev/99-extboot.rules`.
 
 27. Reboot.
