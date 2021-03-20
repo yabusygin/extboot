@@ -1,0 +1,6 @@
+[Unit]
+Description=Extboot sync (stub)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/touch /tmp/extboot-sync
