@@ -1,6 +1,8 @@
 [Unit]
-Description=Extboot sync (stub)
+Description=Extboot sync
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/touch /tmp/extboot-sync
+ExecStart=/bin/mount LABEL=EB-ESP /var/lib/extboot/mnt/esp
+ExecStart=/usr/bin/rsync --archive --delete /boot/efi/ /var/lib/extboot/mnt/esp
+ExecStart=/bin/umount LABEL=EB-ESP
