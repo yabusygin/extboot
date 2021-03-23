@@ -270,14 +270,7 @@ Installation instructions:
     update-initramfs -u -k all
     ```
 
-21. Initialize `extboot` directory:
-
-    ```sh
-    mkdir --parents /var/lib/extboot/mnt/esp
-    mkdir /var/lib/extboot/mnt/recovery
-    ```
-
-22. Set the following `/etc/fstab` file content:
+21. Set the following `/etc/fstab` file content:
 
     ```
     /dev/vg-primary/root         /          xfs   defaults    0  0
@@ -285,18 +278,34 @@ Installation instructions:
     /dev/vg-primary/extboot-esp  /boot/efi  vfat  umask=0077  0  1
     /dev/vg-primary/home         /home      xfs   defaults    0  0
     /dev/vg-primary/swap         none       swap  sw          0  0
-
-    LABEL=EB-ESP       /var/lib/extboot/mnt/esp       vfat  umask=0077  0  0
-    LABEL=EB-RECOVERY  /var/lib/extboot/mnt/recovery  xfs   defaults    0  0
     ```
 
-23. Sync the contents of ESP partitions:
+22. Install `extboot` dependencies:
+
+    ```sh
+    apt install rsync
+    ```
+
+23. Initialize `extboot` directory:
+
+    ```sh
+    mkdir --parents /var/lib/extboot/mnt/esp
+    mkdir /var/lib/extboot/mnt/recovery
+    ```
+
+24. Sync the contents of ESP partitions:
 
     ```sh
     umount /boot/efi
     mount /boot/efi
-    mount /var/lib/extboot/mnt/esp
+    mount -t vfat -o umask=0077 LABEL=EB-ESP /var/lib/extboot/mnt/esp
     rsync --archive --delete /var/lib/extboot/mnt/esp/ /boot/efi
     ```
 
-24. Reboot.
+25. Create file `/etc/systemd/system/extboot-sync.service` with contents from
+    `${project_root}/config/systemd-service/extboot-sync.service`.
+
+26. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
+    `${project_root}/config/udev/99-extboot.rules`.
+
+27. Reboot.

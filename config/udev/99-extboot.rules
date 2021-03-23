@@ -1,0 +1,1 @@
+ENV{ID_FS_LABEL}=="EB-ESP", ENV{SYSTEMD_WANTS}="extboot-sync.service"

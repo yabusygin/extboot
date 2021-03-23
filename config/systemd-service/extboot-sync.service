@@ -1,0 +1,8 @@
+[Unit]
+Description=Extboot sync
+
+[Service]
+Type=oneshot
+ExecStart=/bin/mount -t vfat -o umask=0077 LABEL=EB-ESP /var/lib/extboot/mnt/esp
+ExecStart=/usr/bin/rsync --archive --delete /boot/efi/ /var/lib/extboot/mnt/esp
+ExecStart=/bin/umount LABEL=EB-ESP
