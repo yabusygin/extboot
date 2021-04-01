@@ -176,6 +176,7 @@ Installation instructions:
     | 1           | `/dev/sdb1` | FAT32 | EB-ESP      |
     | 2           | `/dev/sdb2` | XFS   | EB-RECOVERY |
 
+    ```sh
     mkfs.vfat -F 32 -n EB-ESP /dev/sdb1
     mkfs.xfs -L EB-RECOVERY /dev/sdb2
     ```
