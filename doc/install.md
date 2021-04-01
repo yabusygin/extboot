@@ -35,13 +35,12 @@ Internal drive LVM logical volumes:
 *   root filesystem
 *   `/home` filesystem
 *   swap
-*   Extboot-ESP
 
-Extboot-ESP volume is not used when booting the OS. When OS is booted up this
-volume is mounted to `/boot` point instead of the external drive ESP. When EFI
-applications (shim or GRUB) are updated, they are first updated on Extboot-ESP
-volume. When the external drive is connected, its ESP is synced with the
-Extboot-ESP volume.
+Also there is a special loop device (`/dev/loop78`) with staging ESP. When OS is
+booted up this device is mounted to `/boot` instead of the external drive ESP.
+When EFI applications (shim or GRUB) are updated, they are first updated on the
+staging ESP. When the external drive is connected, its ESP is synced with the
+staging ESP.
 
 Installation instructions:
 
@@ -126,7 +125,6 @@ Installation instructions:
 
     | Volume         | Size | FS    |
     | -------------- | ---- | ----- |
-    | extboot-esp    | 1G   | FAT32 |
     | root           | 10G  | XFS   |
     | home           | 20G  | XFS   |
     | swap           | 8G   | swap  |
@@ -136,12 +134,10 @@ Installation instructions:
 
     vgcreate vg-primary /dev/mapper/primary
 
-    lvcreate --name=extboot-esp --size=1G vg-primary
     lvcreate --name=root --size=10G vg-primary
     lvcreate --name=home --size=20G vg-primary
     lvcreate --name=swap --size=8G vg-primary
 
-    mkfs.vfat -F 32 /dev/vg-primary/extboot-esp
     mkfs.xfs /dev/vg-primary/root
     mkfs.xfs /dev/vg-primary/home
     mkswap /dev/vg-primary/swap
@@ -195,7 +191,6 @@ Installation instructions:
     | Device                               | Type  | Mount Point | Format |
     | ------------------------------------ | ----- | ----------- | ------ |
     | /dev/mapper/boot                     | ext4  | /boot       | no     |
-    | /dev/mapper/vg--primary-extboot--esp | fat32 |             | no     |
     | /dev/mapper/vg--primary-home         | xfs   | /home       | no     |
     | /dev/mapper/vg--primary-root         | xfs   | /           | no     |
     | /dev/mapper/vg--primary-swap         | swap  |             | no     |
@@ -271,30 +266,56 @@ Installation instructions:
     update-initramfs -u -k all
     ```
 
-21. Set the following `/etc/fstab` file content:
-
-    ```
-    /dev/vg-primary/root         /          xfs   defaults    0  0
-    /dev/mapper/boot             /boot      ext4  defaults    0  2
-    /dev/vg-primary/extboot-esp  /boot/efi  vfat  umask=0077  0  1
-    /dev/vg-primary/home         /home      xfs   defaults    0  0
-    /dev/vg-primary/swap         none       swap  sw          0  0
-    ```
-
-22. Install `extboot` dependencies:
+21. Install `extboot` dependencies:
 
     ```sh
     apt install rsync
     ```
 
-23. Initialize `extboot` directory:
+22. Initialize `extboot` directory:
 
     ```sh
     mkdir --parents /var/lib/extboot/mnt/esp
     mkdir /var/lib/extboot/mnt/recovery
     ```
 
-24. Sync the contents of ESP partitions:
+23. Initialize backing file for staging ESP:
+
+    ```sh
+    dd if=/dev/zero of=/var/lib/extboot/esp.img bs=1M count=1024
+    mkfs.vfat -F 32 /var/lib/extboot/esp.img
+    ```
+
+24. Configure mounting.
+
+    Set the following `/etc/fstab` file content:
+
+    ```
+    /dev/vg-primary/root      /          xfs   defaults  0  0
+    /dev/mapper/boot          /boot      ext4  defaults  0  2
+    /var/lib/extboot/esp.img  /boot/efi  vfat  x-systemd.requires=extboot-fix-mount.service,loop=/dev/loop78,umask=0077  0  1
+    /dev/vg-primary/home      /home      xfs   defaults  0  0
+    /dev/vg-primary/swap      none       swap  sw        0  0
+    ```
+
+    Create file `/etc/systemd/system/extboot-fix-mount.service` with contents from
+    `${project_root}/config/systemd-service/extboot-fix-mount.service`.
+
+    Run the following commands:
+
+    ```sh
+    losetup /dev/loop78 /var/lib/extboot/esp.img
+    losetup --detach /dev/loop78
+    ```
+
+    **Warning.** Without running the specified above `losetup` commands mounting
+    of `/var/lib/extboot/esp.img` image fails with the following error message:
+
+    ```
+    mount: /boot/efi: failed to setup loop device for /var/lib/extboot/esp.img.
+    ```
+
+25. Sync the contents of external and staging ESP partitions:
 
     ```sh
     umount /boot/efi
@@ -303,10 +324,10 @@ Installation instructions:
     rsync --archive --delete /var/lib/extboot/mnt/esp/ /boot/efi
     ```
 
-25. Create file `/etc/systemd/system/extboot-sync.service` with contents from
+26. Create file `/etc/systemd/system/extboot-sync.service` with contents from
     `${project_root}/config/systemd-service/extboot-sync.service`.
 
-26. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
+27. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
     `${project_root}/config/udev/99-extboot.rules`.
 
-27. Reboot.
+28. Reboot.
