@@ -210,7 +210,19 @@ Installation instructions:
     while [ ! -d /target/etc/default/grub.d ]; do
         sleep 1
     done; \
-    echo "GRUB_ENABLE_CRYPTODISK=y" > /target/etc/default/grub.d/cryptodisk.cfg
+    echo "GRUB_ENABLE_CRYPTODISK=y" > /target/etc/default/grub.d/cryptodisk.cfg; \
+    while [ ! -d /target/usr/local/sbin ]; do
+        sleep 1
+    done; \
+    touch /target/usr/local/sbin/grub-install; \
+    chmod +x /target/usr/local/sbin/grub-install; \
+    cat << __EOF__ >> /target/usr/local/sbin/grub-install
+    #!/bin/bash
+
+    GRUB_INSTALL="/usr/sbin/grub-install --removable"
+
+    \${GRUB_INSTALL} "\$@"
+    __EOF__
     ```
 
 18. When the installation is complete, select "Continue Testing".
