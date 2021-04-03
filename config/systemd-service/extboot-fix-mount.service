@@ -1,0 +1,9 @@
+[Unit]
+Description=Extboot staging ESP mount fixer
+DefaultDependencies=no
+RequiresMountsFor=/usr/sbin/losetup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/losetup /dev/loop78 /var/lib/extboot/esp.img
+ExecStart=/usr/sbin/losetup --detach /dev/loop78
