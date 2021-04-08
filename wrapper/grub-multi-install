@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# The post-installation script of the `grub-efi-amd64-signed` package ignores
+# the value of the `grub2/update_nvram` debconf variable. This results in boot
+# failures on systems that use extboot. This `grub-multi-install` wrapper fixes
+# the above issue.
+#
+# See extboot issue #13 "Boot fails after GRUB upgrade" for details:
+# https://github.com/yabusygin/extboot/issues/13
+
+set -o errexit
+
+. /usr/share/debconf/confmodule
+
+update_nvram() {
+    db_get grub2/update_nvram
+    if [ "$RET" = "true" ]; then
+        return 0
+    fi
+    return 1
+}
+
+no_nvram() {
+    for arg; do
+        if [ "$arg" = "--no-nvram" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Run the real `grub-multi-install` with `--no-nvram` argument
+# if `grub2/update_nvram` debconf variable value is false.
+
+GRUB_MULTI_INSTALL=/usr/lib/grub/grub-multi-install.distrib
+
+if ! no_nvram "$@" && ! update_nvram; then
+    NO_NVRAM="--no-nvram"
+else
+    NO_NVRAM=""
+fi
+
+$GRUB_MULTI_INSTALL "$NO_NVRAM" "$@"

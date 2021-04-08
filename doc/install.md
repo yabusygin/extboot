@@ -362,4 +362,27 @@ Installation instructions:
 30. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
     `${project_root}/config/udev/99-extboot.rules`.
 
-31. Reboot.
+31. Disable UEFI boot variables updates.
+
+    ```sh
+    echo 'set grub2/update_nvram false' | debconf-communicate
+    ```
+
+    To fix the issue #13 run the following command:
+
+    ```sh
+    dpkg-divert \
+        --add \
+        --divert /usr/lib/grub/grub-multi-install.distrib \
+        --rename \
+        /usr/lib/grub/grub-multi-install
+    ```
+
+    and create wrapper script `/usr/lib/grub/grub-multi-install` with contents from
+    `${project_root}/wrapper/grub-multi-install`.
+
+    ```sh
+    chmod +x /usr/lib/grub/grub-multi-install
+    ```
+
+32. Reboot.
