@@ -214,9 +214,9 @@ Installation instructions:
 
     ![Partitioner](figures/partitioner.png)
 
-    ![Whrite the changes to disks?](figures/write-changes.png)
-
     ![Do you want to return to the partitioner](figures/return-to-partitioner.png)
+
+    ![Whrite the changes to disks?](figures/write-changes.png)
 
 18. Configure timezone:
 
