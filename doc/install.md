@@ -44,7 +44,9 @@ staging ESP.
 
 Installation instructions:
 
-1.  Boot in UEFI mode from installation media and choose "Try Ubuntu".
+1.  Boot in UEFI mode from installation media and choose "Try Ubuntu":
+
+    ![Try Ubuntu](figures/try-ubuntu.png)
 
 2.  Open terminal application and switch to root session:
 
@@ -177,16 +179,27 @@ Installation instructions:
     mkfs.xfs -L EB-RECOVERY /dev/sdb2
     ```
 
-12. Start Ubuntu installation.
+12. Start Ubuntu installation:
 
-13. Choose prefered language, keyboard layout, options for updates and other
-    software.
+    ![Install Ubuntu 20.04.2.0 LTS](figures/install-ubuntu.png)
 
-14. In "Installation type" window choose "Something else":
+13. Choose the preferred language:
 
-    ![Installation Type](figures/installation-type.png)
+    ![Preferred Language](figures/language.png)
 
-15. Configure the following options:
+14. Choose the keyboard layout:
+
+    ![Keyboard layout](figures/keyboard-layout.png)
+
+15. Choose the options for updates and other software:
+
+    ![Updates and other software](figures/updates-and-other-software.png)
+
+16. In "Installation type" window choose "Something else":
+
+    ![Installation type](figures/installation-type.png)
+
+17. Configure the following options:
 
     | Device                               | Type  | Mount Point | Format |
     | ------------------------------------ | ----- | ----------- | ------ |
@@ -199,12 +212,29 @@ Installation instructions:
 
     Device for boot loader installation: `/dev/sdb`.
 
-16. Configure timezone, hostname and user account.
+    ![Partitioner](figures/partitioner.png)
 
-17. Enable `grub-mkconfig` and `grub-install` to check for encrypted disks.
+    ![Whrite the changes to disks?](figures/write-changes.png)
+
+    ![Do you want to return to the partitioner](figures/return-to-partitioner.png)
+
+18. Configure timezone:
+
+    ![Where are you?](figures/where-are-you.png)
+
+19. Configure hostname and user account:
+
+    ![Who are you?](figures/who-are-you.png)
+
+20. When installation starts, enable `grub-mkconfig` and `grub-install` to check
+    for encrypted disks.
 
     **Warning.** This has to be done before the installer reaches bootloader
     installation stage.
+
+    ![Installation Progress](figures/progress.png)
+
+    Run the following commands in terminal:
 
     ```sh
     while [ ! -d /target/etc/default/grub.d ]; do
@@ -213,9 +243,11 @@ Installation instructions:
     echo "GRUB_ENABLE_CRYPTODISK=y" > /target/etc/default/grub.d/cryptodisk.cfg
     ```
 
-18. When the installation is complete, select "Continue Testing".
+21. When the installation is complete, select "Continue Testing":
 
-19. Chroot to installed system:
+    ![Installation Complete](figures/installation-complete.png)
+
+22. Chroot to installed system:
 
     ```sh
     mount /dev/vg-primary/root /target
@@ -226,7 +258,7 @@ Installation instructions:
     mount --all
     ```
 
-20. Configure encrypted devices to be unlocked automatically.
+23. Configure encrypted devices to be unlocked automatically.
 
     Ensure that `cryptsetup-initramfs` package is installed:
 
@@ -266,27 +298,27 @@ Installation instructions:
     update-initramfs -u -k all
     ```
 
-21. Install `extboot` dependencies:
+24. Install `extboot` dependencies:
 
     ```sh
     apt install rsync
     ```
 
-22. Initialize `extboot` directory:
+25. Initialize `extboot` directory:
 
     ```sh
     mkdir --parents /var/lib/extboot/mnt/esp
     mkdir /var/lib/extboot/mnt/recovery
     ```
 
-23. Initialize backing file for staging ESP:
+26. Initialize backing file for staging ESP:
 
     ```sh
     dd if=/dev/zero of=/var/lib/extboot/esp.img bs=1M count=1024
     mkfs.vfat -F 32 /var/lib/extboot/esp.img
     ```
 
-24. Configure mounting.
+27. Configure mounting.
 
     Set the following `/etc/fstab` file content:
 
@@ -315,7 +347,7 @@ Installation instructions:
     mount: /boot/efi: failed to setup loop device for /var/lib/extboot/esp.img.
     ```
 
-25. Sync the contents of external and staging ESP partitions:
+28. Sync the contents of external and staging ESP partitions:
 
     ```sh
     umount /boot/efi
@@ -324,10 +356,10 @@ Installation instructions:
     rsync --archive --delete /var/lib/extboot/mnt/esp/ /boot/efi
     ```
 
-26. Create file `/etc/systemd/system/extboot-sync.service` with contents from
+29. Create file `/etc/systemd/system/extboot-sync.service` with contents from
     `${project_root}/config/systemd-service/extboot-sync.service`.
 
-27. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
+30. Create file `/etc/udev/rules.d/99-extboot.rules` with contents from
     `${project_root}/config/udev/99-extboot.rules`.
 
-28. Reboot.
+31. Reboot.
