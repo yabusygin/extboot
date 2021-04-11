@@ -1,1 +1,6 @@
+# Extboot external drive shouldn't be displayed in user interface.
+ENV{ID_FS_LABEL}=="EB-ESP|EB-RECOVERY", ENV{UDISKS_IGNORE}="1"
+
+# When extboot external drive is connected, synchronize its ESP
+# with staging ESP of internal drive.
 ENV{ID_FS_LABEL}=="EB-ESP", ENV{SYSTEMD_WANTS}="extboot-sync.service"
