@@ -1,0 +1,5 @@
+/dev/vg-primary/root      /          xfs   defaults  0  0
+/dev/mapper/boot          /boot      ext4  defaults  0  2
+/var/lib/extboot/esp.img  /boot/efi  vfat  x-systemd.requires=extboot-fix-mount.service,loop=/dev/loop78,umask=0077  0  1
+/dev/vg-primary/home      /home      xfs   defaults  0  0
+/dev/vg-primary/swap      none       swap  sw        0  0
