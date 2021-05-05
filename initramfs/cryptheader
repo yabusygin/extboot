@@ -1,0 +1,27 @@
+#!/bin/sh
+
+PREREQ="cryptroot"
+
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+. /lib/cryptsetup/functions
+
+copy_luks_headers() {
+    crypttab_parse_options --missing-path=fail
+    if [ -n "${CRYPTTAB_OPTION_header}" ]; then
+        copy_file luks-header "${CRYPTTAB_OPTION_header}"
+    fi
+}
+
+crypttab_foreach_entry copy_luks_headers
